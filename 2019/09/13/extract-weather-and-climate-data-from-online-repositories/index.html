@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.82.0" />
+
+
+<title>Extract weather and climate data from online repositories - ...serving spatial data</title>
+<meta property="og:title" content="Extract weather and climate data from online repositories - ...serving spatial data">
+
+
+  <link href='/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+<link rel="stylesheet" href="/css/rladies.css">
+
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/ymutua">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/JohnYumbya">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">4 min read</span>
+    
+
+    <h1 class="article-title">Extract weather and climate data from online repositories</h1>
+
+    
+    <span class="article-date">2019-09-13</span>
+    
+
+    <div class="article-content">
+      
+
+
+<p>In a world experiencing climate change, good weather and climate data matters. It may be available but often hard to find, understand and apply to decision-making mainly because:</p>
+<ul>
+<li>There are no weather stations everywhere</li>
+<li>Weather stations are not in good condition (gaps)</li>
+<li>The data is not stored correctly</li>
+<li>The data does not pass the basic quality controls</li>
+<li>Access to data is restricted</li>
+</ul>
+<p>However, weather and climate data products derived from satellites and model-based reanalysis have been used in locations where station based observations are inadequate or incomplete.</p>
+<p>We will explore methods of extracting weather and climate data from two online repositories.</p>
+<ul>
+<li><a href="https://power.larc.nasa.gov/data-access-viewer/">NASA Power</a></li>
+<li><a href="https://developer.awhere.com/api/about-our-data/weather-data">aWhere</a></li>
+</ul>
+<p>If you chose to extract data from NASA Power, have your coordinates ready then visit the NASA Power <a href="https://power.larc.nasa.gov/data-access-viewer/">website</a> and download manually.</p>
+<p><img src="/images/nasa_power.png" /></p>
+<p>However, this can be painful if you have alot of sites. The solution is to develop custom scripts to automate downloading. For this you’ll need:</p>
+<ul>
+<li>R</li>
+<li>RStudio (<em>optional</em>)</li>
+<li>Packages to make easier management of the data</li>
+<li>Your list of stations with coordinates stored as a <code>.csv</code> file</li>
+</ul>
+<p>We will extract two parameters i.e. precipitation and temperature, on a daily time step. For more information about other parameters nand temporal resolutions available see <a href="https://power.larc.nasa.gov/docs/v1/">here</a>. The API allows you to:</p>
+<ul>
+<li>Make HTTPS GET calls to the POWER data archives directly.</li>
+<li>Integrate the service into your own applications.</li>
+</ul>
+<p>For a sample SinglePoint, <a href="https://power.larc.nasa.gov/cgi-bin/v1/DataAccess.py?request=execute&amp;identifier=SinglePoint&amp;parameters=T2M,PS,ALLSKY_SFC_SW_DWN&amp;startDate=20160301&amp;endDate=20160331&amp;userCommunity=SSE&amp;tempAverage=DAILY&amp;outputList=JSON,ASCII&amp;lat=36&amp;lon=45&amp;user=anonymous">here</a> is the call to the API.</p>
+<p>The <code>nasapower</code> R package has been developed for this! It makes it easy to:</p>
+<ul>
+<li>Automate downloading from NASA-POWER website.</li>
+<li>Generate input data for use in crop models like <a href="http://www.apsim.info/">APSIM</a> or <a href="https://dssat.net/">DSSAT</a>.</li>
+</ul>
+<p>To pull daily data from the API for a single coordinate, you will first need to load <code>nasapower</code> R package through , then use the <code>get_power</code> function as shown below.</p>
+<pre class="r"><code>daily_ag &lt;- get_power(community = &quot;AG&quot;,
+                      lonlat = c(43.13333, 11.55),
+                      pars = c(&quot;T2M&quot;, &quot;PRECTOT&quot;),
+                      dates = &quot;2010-01-01&quot;,
+                      temporal_average = &quot;DAILY&quot;
+                      )</code></pre>
+<p>What about many sites? i.e <code>sites &gt; 1</code>. For this, you will need a bunch of libraries besides <code>nasapower</code> R package.</p>
+<pre class="r"><code>library(nasapower)
+library(data.table)
+library(tidyverse)</code></pre>
+<p>Set path to your .csv file.</p>
+<pre class="r"><code>iDir &lt;- &quot;.&quot;</code></pre>
+<p>Next, read in your station data.</p>
+<pre class="r"><code>sites &lt;- read_csv(paste0(iDir, &quot;/data/weather_stations.csv&quot;))</code></pre>
+<p>Create a list to store your data.</p>
+<pre class="r"><code>daily_ag &lt;- list()</code></pre>
+<p>Using a <code>for</code> loop, download for each station.</p>
+<pre class="r"><code>for(i in 1:nrow(sites)){
+
+  site_row&lt;- sites[i,]
+
+  daily_ag[[i]] &lt;- get_power(community = &quot;AG&quot;,
+                             lonlat = c(site_row$Long, site_row$Lat),
+                             pars = c(&quot;T2M&quot;, &quot;PRECTOT&quot;),
+                             dates = c(&quot;2008-01-01&quot;, &quot;2018-12-31&quot;),
+                             temporal_average = &quot;DAILY&quot;)
+  
+  site_id = site_row$ID 
+  
+  daily_ag[[i]]$site_id &lt;- site_id
+
+}</code></pre>
+<p>If pulling from aWhere, you will need the <code>aWhereAPI</code> R package.</p>
+<pre class="r"><code># library(aWhereAPI) # access aWhere&#39;s API</code></pre>
+<p>And just like that loop through the stations.</p>
+<pre class="r"><code># for(i in 1:nrow(sites)){
+# 
+#   site_row&lt;- sites[i,]
+# 
+#   aWhereAPI::get_token(uid = &quot;&quot;, secret = &quot;&quot;) #your uid and secret here
+#   
+#   obs_startdate &lt;- as.character(&quot;2008-01-01&quot;)
+#   obs_enddate &lt;- as.character(&quot;2018-01-31&quot;)
+# 
+#   daily_ag[[i]] &lt;- aWhereAPI::daily_observed_latlng(latitude = site_row$Lat,
+#                                                     longitude = site_row$Long,
+#                                                     day_start = obs_startdate,
+#                                                     day_end = obs_enddate,
+#                                                     properties = c(&quot;precipitation&quot;, &quot;temperatures&quot;))
+#   
+#   site_id = site_row$ID
+#   daily_ag[[i]]$site_id &lt;- site_id
+#   
+# }</code></pre>
+<p>Create one data table from the list saved above.</p>
+<pre class="r"><code>data &lt;- rbindlist(daily_ag)</code></pre>
+<p>Finally, write the data in a folder as .csv using <code>write_csv</code> which is twice as fast as <code>write.csv()</code>, and never writes row names</p>
+<pre class="r"><code>write_csv(data, paste0(iDir, &quot;/output&quot;, &quot;/weather_data.csv&quot;))</code></pre>
+<p>We can do some visualization. But first let’s group the data by <code>site_id</code> then <code>YEAR</code> using pipes: <em>read as, and then</em>.</p>
+<pre class="r"><code>data_prec &lt;- data %&gt;%
+  group_by(site_id, YEAR) %&gt;%
+  summarize(annual_prec = sum(PRECTOT, na.rm = TRUE))</code></pre>
+<p>The dataset has three variables that need fixing.</p>
+<pre class="r"><code># color and split variables
+data_prec$site_id &lt;- as.factor(data_prec$site_id)
+data_prec$YEAR &lt;- as.factor(data_prec$YEAR)</code></pre>
+<p>Plot annual precipitation.</p>
+<pre class="r"><code>ggplot(data_prec, aes(x = YEAR, 
+                           y = annual_prec, 
+                           color = site_id,
+                           group = site_id)) +
+  geom_line()+
+  geom_point()+
+  ggtitle(&quot;Average Annual Precipitation&quot;) +
+  xlab(&quot;Year&quot;) + ylab(&quot;Annual Precipitation&quot;) +
+  theme(plot.title = element_text(hjust = 0.5))</code></pre>
+<p><img src="/post/2019-09-13-extract-weather-and-climate-data-from-online-repositories_files/figure-html/annual_prec-1.png" width="90%" /></p>
+<p>Another way to visualize the data.</p>
+<pre class="r"><code># p + facet_grid(~ site_id)</code></pre>
+<p>Finally, save the plot.</p>
+<pre class="r"><code>ggsave(paste0(iDir, &quot;/output&quot;, &quot;/annual_prec.png&quot;))</code></pre>
+
+    </div>
+  </article>
+
+  
+<section id="comments">
+  <div id="disqus_thread"></div>
+  <script>
+  var disqus_config = function () {
+  
+  };
+  (function() {
+    var inIFrame = function() {
+      var iframe = true;
+      try { iframe = window.self !== window.top; } catch (e) {}
+      return iframe;
+    };
+    if (inIFrame()) return;
+    var d = document, s = d.createElement('script');
+    s.src = '//ymutuaa-github-io-1.disqus.com/embed.js'; s.async = true;
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-150751567-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+  </body>
+</html>
+

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.82.0" />
+
+
+<title>Map making with R - ...serving spatial data</title>
+<meta property="og:title" content="Map making with R - ...serving spatial data">
+
+
+  <link href='/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+<link rel="stylesheet" href="/css/rladies.css">
+
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/ymutua">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/JohnYumbya">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">3 min read</span>
+    
+
+    <h1 class="article-title">Map making with R</h1>
+
+    
+    <span class="article-date">2019-08-13</span>
+    
+
+    <div class="article-content">
+      
+
+
+<p>Maps have been part of human history for a long time; representing the real world on paper and now via the <a href="https://en.wikipedia.org/wiki/Web_mapping">web</a>. The process should be simple, but it’s often challenging to non-GIS people.</p>
+<p>Software such as <a href="https://www.arcgis.com/index.html">ArcGIS</a> and <a href="https://qgis.org/en/site/">QGIS</a> have made map making an easy process, while you will need a license to use the former, the latter is a free and open-source software (FOSS).</p>
+<p>However, R - a statistical programming language has spatial capabilities that can be used for map making. This tutorial introduces the fundamentals of map making using R.</p>
+<p>For this tutorial, we will need several pckages that can be installed with:</p>
+<pre class="r"><code>install.packages(c(&quot;ggplot2&quot;, &quot;ggspatial&quot;, &quot;sf&quot;, &quot;rnaturalearth&quot;))</code></pre>
+<p>First, we set our working directory. This is the place where you will read and keep all your outputs.</p>
+<pre class="r"><code>iDir &lt;- &quot;~/&quot;</code></pre>
+<p>We then load two packages, (i) <code>ggplot2</code> and (ii) <code>sf</code>, these are necessary for all maps.</p>
+<pre class="r"><code>library(ggplot2)
+library(sf)</code></pre>
+<p>We access a map of entire countries of the world using <code>rnaturalearth</code> package and further through <code>ne_countries</code> function, pull country level data.</p>
+<pre class="r"><code>library(&quot;rnaturalearth&quot;)
+
+aoi &lt;- ne_countries(scale = &quot;medium&quot;, returnclass = &quot;sf&quot;)</code></pre>
+<p>We now have data that we can plot by creating a base map of the world using <code>ggplot2</code> package and <code>ggplot</code> function as shown below.</p>
+<pre class="r"><code>ggplot(data = aoi) +
+  geom_sf()</code></pre>
+<p><img src="/post/2019-08-13-map-making-with-r_files/figure-html/world-plot-1.png" width="90%" /></p>
+<p>Further, we can add a title using <code>ggtitle</code> function, By default, Axis names are absent on a map, but can be changed to more suitable ones like “Longitude”….“Latitude”.</p>
+<pre class="r"><code>ggplot(data = aoi) +
+  geom_sf() +
+  xlab(&quot;Longitude&quot;) + ylab(&quot;Latitude&quot;) +
+  ggtitle(&quot;World map&quot;, subtitle = paste0(&quot;(&quot;, length(unique(aoi$NAME)), &quot; countries)&quot;))</code></pre>
+<p><img src="/post/2019-08-13-map-making-with-r_files/figure-html/world-title-1.png" width="90%" /></p>
+<p>We now add some color by filling the polygons of the countries with a color, using argument <code>fill</code> and red for the outline of the countries using argument <code>color</code>.</p>
+<pre class="r"><code>ggplot(data = aoi) + 
+  geom_sf(color = &quot;red&quot;, fill = &quot;blue&quot;)</code></pre>
+<p><img src="/post/2019-08-13-map-making-with-r_files/figure-html/world-colors-1.png" width="90%" /></p>
+<p>Visualization can get more interesting when you can show a gradient on one variable of the data - here we show the population of each country using the <code>viridis</code> scale through the <code>option = "plasma"</code>.</p>
+<pre class="r"><code>ggplot(data = aoi) +
+    geom_sf(aes(fill = pop_est)) +
+    scale_fill_viridis_c(option = &quot;plasma&quot;)</code></pre>
+<p><img src="/post/2019-08-13-map-making-with-r_files/figure-html/world-colors-pop-1.png" width="90%" /></p>
+<p>The object <code>aoi</code> contains various data that can be visualized. You can view what’s vailable through <code>names(world)</code>. Here we visualize economies.</p>
+<pre class="r"><code>ggplot(data = aoi) +
+    geom_sf(aes(fill = economy)) +
+    scale_fill_discrete()</code></pre>
+<p><img src="/post/2019-08-13-map-making-with-r_files/figure-html/world-colors-economy-1.png" width="90%" /></p>
+<p>We can zoom in to any area of interest e.g Kenya, by setting the extent of the map using <code>coord_sf</code> function, and providing limits on the x-axis (<code>xlim</code>), and on the y-axis (<code>ylim</code>).</p>
+<pre class="r"><code>ggplot(data = aoi) +
+    geom_sf() +
+    coord_sf(xlim = c(33, 42), ylim = c(-5, 5.9), expand = FALSE)</code></pre>
+<p><img src="/post/2019-08-13-map-making-with-r_files/figure-html/world-zoom-1.png" width="65%" /></p>
+<p>And add afew more elements to the map, but lets first load the <code>ggspatial</code> package through <code>library(ggspatial)</code>. Check out these functions: <code>annotation_scale</code>, <code>annotation_north_arrow</code> and <code>coord_sf</code> and arguments: <code>legend.position</code> will automatically place the legend at a specific location, <code>panel.grid.major</code> and <code>panel.grid.minor</code> sets grid lines to gray color and have them appear dashed, <code>panel.background</code> colors the background. For more arguments see the function <code>theme</code>.</p>
+<pre class="r"><code>ggplot(data = aoi) +
+  geom_sf(fill= &quot;antiquewhite&quot;) +
+  annotation_scale(location = &quot;bl&quot;, width_hint = 0.45) +
+  annotation_north_arrow(location = &quot;bl&quot;, which_north = &quot;true&quot;, 
+                         pad_x = unit(0.6, &quot;in&quot;), pad_y = unit(0.4, &quot;in&quot;),
+                         style = north_arrow_fancy_orienteering) +
+  coord_sf(xlim = c(33, 42), ylim = c(-5, 5.9), expand = FALSE) +
+  xlab(&quot;Longitude&quot;) + ylab(&quot;Latitude&quot;) +
+  ggtitle(&quot;Map of Kenya&quot;)</code></pre>
+<p><img src="/post/2019-08-13-map-making-with-r_files/figure-html/kenya-final-1.png" width="65%" /></p>
+<p>Finally we save the map using <code>ggsave</code> function. Luckily, we have a choice of image formats to chose from e.g. PNG, JPEG, PDF etc Here we use PNG which is good for the web.</p>
+<pre class="r"><code>ggsave(paste0(iDir, &quot;/&quot;), &quot;my_map.png&quot;, width = 6, height = 6, dpi = &quot;screen&quot;)</code></pre>
+
+    </div>
+  </article>
+
+  
+<section id="comments">
+  <div id="disqus_thread"></div>
+  <script>
+  var disqus_config = function () {
+  
+  };
+  (function() {
+    var inIFrame = function() {
+      var iframe = true;
+      try { iframe = window.self !== window.top; } catch (e) {}
+      return iframe;
+    };
+    if (inIFrame()) return;
+    var d = document, s = d.createElement('script');
+    s.src = '//ymutuaa-github-io-1.disqus.com/embed.js'; s.async = true;
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</section>
+
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-150751567-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+  </body>
+</html>
+

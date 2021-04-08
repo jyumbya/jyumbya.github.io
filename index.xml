@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>...serving spatial data</title>
+    <link>/</link>
+    <description>Recent content on ...serving spatial data</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 31 Mar 2021 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>My research is transforming, stay tuned!</title>
+      <link>/2021/03/31/my-research-is-transforming-stay-tuned/</link>
+      <pubDate>Wed, 31 Mar 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/2021/03/31/my-research-is-transforming-stay-tuned/</guid>
+      <description>A substantial part of my work over the years has been on crop and livestock systems, where I work to understand their functioning and response in East Africa, and how they can be transformed to be more productive. I have focused on how spatial modeling can contribute to decision making agricultural systems.
+My research is transforming! towards livestock systems. A year ago, I led the development of a new method to map and assess heat stress in pigs.</description>
+    </item>
+    
+    <item>
+      <title>COVID-19 in Africa</title>
+      <link>/2020/04/09/covid-19-in-africa/</link>
+      <pubDate>Thu, 09 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/04/09/covid-19-in-africa/</guid>
+      <description>The unreasonable effectiveness of public work talk was given by David Robinson during rstudio::conf 2019, it&amp;rsquo;s still very relevant - Let&amp;rsquo;s collaborate and communicate more!
+First forward, the current COVID-19 pandemic led me into looking into publicly available data more closely and came up with a dashboard that was picked up by Locus Geosystems - a local Kenyan startup, with more hands on it now I am amazed at what they have done so far.</description>
+    </item>
+    
+    <item>
+      <title>Don&#39;t use spreadsheets for more than what they are for.</title>
+      <link>/2019/12/01/don-t-use-spreadsheets-for-more-than-what-they-are-for/</link>
+      <pubDate>Sun, 01 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/12/01/don-t-use-spreadsheets-for-more-than-what-they-are-for/</guid>
+      <description>I am surprised by how often spreadsheets are used for things they are not really good for when there are better alternatives.</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>/about/</link>
+      <pubDate>Sun, 13 Oct 2019 21:48:51 -0700</pubDate>
+      
+      <guid>/about/</guid>
+      <description>I earned my BA from Moi University. I&amp;rsquo;m a Geospatial Analyst working at International Center for Tropical Agriculture (CIAT). Prior to that, I worked at African Biodiversity Conservation and Innovations Centre, Kenya Electricity Generating Company (KENGEN), Department of Resource Surveys and Remote Sensing (DRSRS) and Kenya Meteorological Department (KMD). I have consulted for French Research Institute for Development and VACID Africa among other organisations.
+My work revolves around creating reproducible workflows for analyzing complex spatial data, with appropriate analytical methods, informed by my unique combination of skills, experience, and understanding of research themes - climate change, food security and agriculture.</description>
+    </item>
+    
+    <item>
+      <title>Extract weather and climate data from online repositories</title>
+      <link>/2019/09/13/extract-weather-and-climate-data-from-online-repositories/</link>
+      <pubDate>Fri, 13 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/09/13/extract-weather-and-climate-data-from-online-repositories/</guid>
+      <description>In a world experiencing climate change, good weather and climate data matters. It may be available but often hard to find, understand and apply to decision-making mainly because:
+There are no weather stations everywhereWeather stations are not in good condition (gaps)The data is not stored correctlyThe data does not pass the basic quality controlsAccess to data is restrictedHowever, weather and climate data products derived from satellites and model-based reanalysis have been used in locations where station based observations are inadequate or incomplete.</description>
+    </item>
+    
+    <item>
+      <title>Map making with R</title>
+      <link>/2019/08/13/map-making-with-r/</link>
+      <pubDate>Tue, 13 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/08/13/map-making-with-r/</guid>
+      <description>Maps have been part of human history for a long time; representing the real world on paper and now via the web. The process should be simple, but it’s often challenging to non-GIS people.
+Software such as ArcGIS and QGIS have made map making an easy process, while you will need a license to use the former, the latter is a free and open-source software (FOSS).
+However, R - a statistical programming language has spatial capabilities that can be used for map making.</description>
+    </item>
+    
+    <item>
+      <title>Hello world</title>
+      <link>/2019/07/09/hello-world/</link>
+      <pubDate>Tue, 09 Jul 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/07/09/hello-world/</guid>
+      <description>Right here is the place where I share my analytical and programming projects, using languages and tools such as R, Python, ArcGIS, QGIS etc.
+In future, I plan to have a tutorial section for more detailed introduction into a topic. Please feel free to contact me if you have exciting suggestions or questions!</description>
+    </item>
+    
+  </channel>
+</rss>
